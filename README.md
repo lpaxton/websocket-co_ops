@@ -7,8 +7,16 @@ This project provides a digital vending machine experience composed of two pages
 
 ## Getting started
 
-1. Serve the project with your favorite static web server (e.g., `npx serve`, the VS Code Live Server extension, or a simple Python HTTP server).
-2. Open `index.html` in a browser to display the kiosk view. Each QR code points to the hosted `digital-product.html` page with an `item` query parameter.
-3. Scan a QR code from a phone. The mobile browser loads `digital-product.html`, reads the `item` parameter, and personalizes the copy and color palette while running the animated transfer sequence.
+1. Install dependencies and start the realtime server:
 
-Both pages load their styling and scripts via relative paths, so you can customize the item catalog by editing `scripts/items-data.js` without touching layout code.
+   ```bash
+   npm install
+   npm start
+   ```
+
+   This hosts the static files and opens a WebSocket endpoint used to keep the kiosk and mobile devices in sync.
+
+2. Open `http://localhost:3000/index.html` in a desktop browser to display the kiosk view. Each QR code points to the hosted `digital-product.html` page with an `item` query parameter.
+3. Scan a QR code from a phone. The mobile browser loads `digital-product.html`, personalizes the copy and color palette, and automatically notifies the kiosk that a transfer is in progress. Tap **Confirm delivery on kiosk** when the animation finishes to send the completion event back to the display.
+
+Both pages load their styling and scripts via relative paths, so you can customize the item catalog by editing `scripts/items-data.js` without touching layout code. When you add or remove items, the WebSocket hand-off will continue to work because it keys off each item's `id`.

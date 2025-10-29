@@ -16,6 +16,10 @@
   items.forEach((item) => {
     const card = document.createElement("article");
     card.className = "item-card";
+    card.dataset.itemId = item.id;
+    card.dataset.itemName = item.name;
+    card.dataset.itemAccent = item.accent;
+    card.dataset.itemColor = item.color;
     card.style.setProperty("--accent", item.accent);
     card.style.background = `linear-gradient(145deg, ${item.color}1f, rgba(12, 13, 22, 0.95))`;
 

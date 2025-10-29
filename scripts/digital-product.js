@@ -8,6 +8,8 @@
   const priceEl = document.getElementById("product-price");
   const descriptionEl = document.getElementById("product-description");
   const captionEl = document.getElementById("animation-caption");
+  const statusEl = document.getElementById("connection-status");
+  const completeButton = document.getElementById("complete-transfer");
 
   if (product) {
     nameEl.textContent = product.name;
@@ -21,6 +23,111 @@
 
   const accentColor = (product === null || product === void 0 ? void 0 : product.accent) || "#5a31f4";
   const baseColor = (product === null || product === void 0 ? void 0 : product.color) || "#00acc1";
+
+  if (statusEl) {
+    statusEl.dataset.itemId = itemId || "";
+  }
+
+  const defaultButtonText = completeButton ? completeButton.textContent : "";
+
+  if (completeButton) {
+    completeButton.disabled = true;
+  }
+
+  let announceTransfer = null;
+  let activeSocket = null;
+
+  if (completeButton) {
+    completeButton.addEventListener("click", () => {
+      if (announceTransfer) {
+        announceTransfer("transfer-complete");
+      }
+      completeButton.disabled = true;
+      completeButton.textContent = "Delivery confirmed";
+      completeButton.dataset.confirmed = "true";
+      updateStatus("Thanks! The kiosk has been notified.", "ready");
+    });
+  }
+
+  function updateStatus(text, state) {
+    if (!statusEl) {
+      return;
+    }
+    statusEl.textContent = text;
+    statusEl.classList.remove("connection-status--ready", "connection-status--error");
+    if (state === "ready") {
+      statusEl.classList.add("connection-status--ready");
+    } else if (state === "error") {
+      statusEl.classList.add("connection-status--error");
+    }
+  }
+
+  function startSocket() {
+    if (!("WebSocket" in window)) {
+      updateStatus("Your device doesn't support live updates, but the transfer will continue.", "error");
+      return;
+    }
+
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const host = window.location.host;
+    if (!host) {
+      updateStatus("Open the link from the hosted kiosk to enable live updates.", "error");
+      return;
+    }
+    const socket = new WebSocket(`${protocol}://${host}/ws`);
+    activeSocket = socket;
+
+    announceTransfer = (type) => {
+      if (socket.readyState !== WebSocket.OPEN) {
+        return;
+      }
+      socket.send(
+        JSON.stringify({
+          type,
+          itemId: itemId,
+          accent: accentColor,
+          name: product === null || product === void 0 ? void 0 : product.name,
+        })
+      );
+    };
+
+    socket.addEventListener("open", () => {
+      updateStatus("Connected to the vending machine. Enjoy the show!", "ready");
+      announceTransfer("transfer-start");
+      if (completeButton) {
+        if (completeButton.dataset.confirmed === "true") {
+          completeButton.disabled = true;
+          completeButton.textContent = "Delivery confirmed";
+        } else {
+          completeButton.disabled = false;
+          completeButton.textContent = defaultButtonText;
+        }
+      }
+    });
+
+    socket.addEventListener("close", () => {
+      updateStatus("Connection lost. We'll try to reconnect...", "error");
+      if (completeButton) {
+        completeButton.disabled = true;
+      }
+      announceTransfer = null;
+      window.setTimeout(startSocket, 2500);
+    });
+
+    socket.addEventListener("error", () => {
+      socket.close();
+    });
+  }
+
+  if (statusEl) {
+    updateStatus("Connecting to the vending machine...", null);
+    startSocket();
+    window.addEventListener("pagehide", () => {
+      if (activeSocket) {
+        activeSocket.close();
+      }
+    });
+  }
 
   const container = document.getElementById("animation-container");
 
