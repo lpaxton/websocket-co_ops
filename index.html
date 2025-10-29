@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Vending Machine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Digital Vending Machine</h1>
+      <p>
+        Browse the latest holographic treats and scan the QR code below each
+        item to transfer it instantly to your device. Every code opens an
+        animated delivery experience tailored to your selection.
+      </p>
+    </header>
+
+    <section class="vending-grid" id="vending-grid" aria-live="polite"></section>
+
+    <aside id="transfer-toast" class="transfer-toast" aria-live="assertive" hidden>
+      <div class="toast-content">
+        <h2 id="toast-title">Transfer incoming</h2>
+        <p id="toast-message">A guest just claimed an item. Watch the delivery animation.</p>
+      </div>
+    </aside>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" integrity="sha512-RIvqVHy+kwCpyC4ZjPPMSP69h7auCbsQgDaA88uAn0sauN8DPUjWPY3y/UN1N+LWx6KCbCGdWiwHZAwM02gLkg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="scripts/items-data.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/socket-kiosk.js"></script>
+  </body>
+</html>
